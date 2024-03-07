@@ -89,5 +89,4 @@ runs:
         ref=$(git rev-parse HEAD)
         echo "Pushed $ref"
         echo "ref=$ref" >> "$GITHUB_OUTPUT"
-        cat "$GITHUB_OUTPUT"
       shell: bash
