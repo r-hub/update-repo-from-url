@@ -30,6 +30,7 @@ inputs:
 outputs:
   ref:
     description: SHA of the new commit.
+    value: ${{ steps.push.ref }}
 
 runs:
   using: "composite"
@@ -75,6 +76,7 @@ runs:
       shell: bash
 
     - name: Update repo
+      id: push
       run: |
         cd new
         git config --local user.name "$GITHUB_ACTOR"
