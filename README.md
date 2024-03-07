@@ -7,6 +7,16 @@ a repository to the contents of the tarball.
 
 <!-- start usage -->
 ```yaml
+name: Update repo from tarball
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        descirption: Tarball URL
+        type: string
+        required: true
+
 jobs:
   update-repo:
     runs-on: ubuntu-latest
@@ -15,7 +25,7 @@ jobs:
   steps:
     - uses: r-hub/update-repo-from-url@v1
       with:
-      url: https://cran.r-project.org/src/contrib/Archive/cli/cli_3.6.1.tar.gz
+      url: ${{ github.event.inputs.url }}
       ignore-top-directory: true
       token: ${{ secrets.GITHUB_TOKEN }}
 ```
