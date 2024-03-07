@@ -44,6 +44,7 @@ runs:
     - name: Download tarball.
       run: |
         curl -L ${{ inputs.url }} -o repo.tar.gz
+      shell: bash
 
     - name: Extract tarball.
       run: |
@@ -66,10 +67,12 @@ runs:
         rm -rf new/.git new/.github
         mv dot-git new/.git
         mv dot-github new/.github
+      shell: bash
 
     - name: List repo contents
       run: |
         find new -not -path "new/.git/*"
+      shell: bash
 
     - name: Update repo
       run: |
@@ -83,3 +86,4 @@ runs:
         git push
         ref=$(git rev-parse HEAD)
         echo "ref=${ref}" >> "$GITHUB_OUTPUT"
+      shell: bash

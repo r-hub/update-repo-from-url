@@ -22,12 +22,12 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-  steps:
-    - uses: r-hub/update-repo-from-url@v1
-      with:
-      url: ${{ github.event.inputs.url }}
-      ignore-top-directory: true
-      token: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: r-hub/update-repo-from-url@v1
+        with:
+          url: ${{ github.event.inputs.url }}
+          ignore-top-directory: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 ```
 <!-- end usage -->
 
