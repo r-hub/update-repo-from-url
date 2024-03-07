@@ -1,0 +1,85 @@
+name: update-repo-from-url
+description: |
+  Update a repository with the contents of a tarball, downloaded
+  from a URL. Run this action in 'ubuntu-latest', and add
+  `contents: write` permissions to the job to be able to update the
+  repository.
+inputs:
+  url:
+    description: |
+      URL to a tarball, the contents of which will be used as the
+      updated contents of the repository.
+  branch:
+    description: |
+      Branch to use, if other then the default branch.
+  commit-message:
+    description: |
+      Commit message to use for the update.
+    default: 'Updated by r-hub/update-repo-from-url'
+  ignore-top-directory:
+    description: |
+      Whether to ignore the top directory inside the tarball.
+    default: true
+  repository:
+    description: |
+      Repository name with owner. For example, r-lib/cli
+    default: ${{ github.repository }}
+  token:
+    description: >
+      Personal Access token (PAT) used to fetch and update the repository.
+outputs:
+  ref:
+    description: SHA of the new commit.
+
+runs:
+  using: "composite"
+  steps:
+
+    - uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.repository }}
+        token: ${{ inputs.token }}
+        path: old
+
+    - name: Download tarball.
+      run: |
+        curl -L ${{ inputs.url }} -o repo.tar.gz
+
+    - name: Extract tarball.
+      run: |
+        # Keep .git and .github directories
+        mv old/.git dot-git
+        mv old/.github dot-github
+        mkdir tmp
+        tar xzf repo.tar.gz -C tmp
+        if [[ "${{ inputs.ignore-top-directory }}" == "true" ]]; then
+          if [[ "$(ls tmp | wc -l | tr -d ' ')" != "1" ]]; then
+            >&2 echo "Invalid tarball, should contain a single directory."
+            exit 1
+          fi
+          cnt="tmp/$(ls tmp)"
+        else
+          cnt=tmp
+        fi
+        mv "$cnt" new
+        # These are not allowed in the tarball
+        rm -rf new/.git new/.github
+        mv dot-git new/.git
+        mv dot-github new/.github
+
+    - name: List repo contents
+      run: |
+        find new -not -path "new/.git/*"
+
+    - name: Update repo
+      run: |
+        cd new
+        git config --local user.name "$GITHUB_ACTOR"
+        git config --local user.email "$GITHUB_ACTION@users.noreply.github.com"
+        git add -A .
+        git commit --allow-empty \
+          -m "${{ inputs.commit-message || 'Updated by r-hub/update-repo-from-url'}}"
+        git pull --ff-only
+        git push
+        ref=$(git rev-parse HEAD)
+        echo "ref=${ref}" >> "$GITHUB_OUTPUT"
