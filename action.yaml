@@ -85,5 +85,5 @@ runs:
         git pull --ff-only
         git push
         ref=$(git rev-parse HEAD)
-        echo "ref=${ref}" >> "$GITHUB_OUTPUT"
+        echo "ref=$ref" >> "$GITHUB_OUTPUT"
       shell: bash
